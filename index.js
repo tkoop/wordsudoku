@@ -19,7 +19,7 @@ function goodNine(word) {
 
 
 function createGame(word) {
-  console.log(word)
+  // console.log(word)
 
   do {
     var puzzle = sudoku.makepuzzle()
@@ -27,31 +27,33 @@ function createGame(word) {
     var difficulty = sudoku.ratepuzzle(puzzle, 4)
   } while(difficulty > 0)
 
-  console.log(solution)
+//  console.log(solution)
 
   var map = {}  // key is digit, value is letter from the word
   for(var i=0; i<9; i++) {
     var digit = solution[9*4+i]
     var char = word[i].toUpperCase()
     map[digit] = char
-    console.log(digit + " = " + char)
+    // console.log(digit + " = " + char)
   }
 
   for(var y=0; y<9; y++) {
     for(var x=0; x<9; x++) {
       var digit = puzzle[y*9+x]
-      var char = map[digit] || " "
+      var char = map[digit] || "."
       process.stdout.write(char)
     }
     process.stdout.write("\n")
   }
-
+  console.log("\n")
+  /*
   for(var y=0; y<9; y++) {
     for(var x=0; x<9; x++) {
       process.stdout.write(""+solution[y*9+x])
     }
     process.stdout.write("\n")
   }
+  */
 }
 
 
@@ -63,12 +65,11 @@ async function main() {
   
   var nine = words.filter(word => goodNine(word))
   
-  // nine.forEach(word => {
-    createGame(nine[0])
-//    console.log("word: " + word)
-  // })
+  nine.forEach(word => {
+    createGame(word)
+  })
 
-  console.log(nine.length + " 9 letter words")
+  // console.log(nine.length + " 9 letter words")
 
 }
 
