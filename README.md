@@ -5,7 +5,9 @@ A Sudoku maker that uses letters instead of numbers and spells out words
     npm install
     node main
 
-It will produce something like this:
+It will create a file called grid.html, which can be opened with a web browser.  Also, I converted it into a pdf, saved to grid.pdf.
+
+The output of this script will also print something like this to the console:
 ```
 DYBNIEORF
 NERDOFBYI

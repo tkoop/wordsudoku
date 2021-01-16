@@ -125,7 +125,7 @@ function createGame(word) {
   var bestSpots = null
   var bestMap = null
 
-  for(var i=0; i<100; i++) {
+  for(var i=0; i<200; i++) {
 
     do {
       var puzzle = sudoku.makepuzzle()
@@ -180,6 +180,155 @@ function printPuzzle(puzzle, map, spots) {
 
 }
 
+function puzzle2HTML(puzzle, map, spots) {
+  var html = ""
+
+  html += "<div class='sudoku'>"
+  for(var y=0; y<9; y++) {
+    html += "<div class='row'>"
+    for(var x=0; x<9; x++) {
+      var classes = ["cell"]
+      if (y==0) classes.push("table-top")
+      if (y==8) classes.push("table-bottom")
+      if (x==0) classes.push("table-left")
+      if (x==8) classes.push("table-right")
+
+      if (y==0 || y==3 || y==6) classes.push("group-top")
+      if (y==2 || y==5 || y==8) classes.push("group-bottom")
+      if (x==0 || x==3 || x==6) classes.push("group-left")
+      if (x==2 || x==5 || x==8) classes.push("group-right")
+
+      var cell = "<div class='"+classes.join(" ")+"'>"
+
+      var digit = puzzle[y*9+x]
+      if (map[digit]) {
+        cell += "<div class='letter'>" + map[digit] + "</div>"
+      }
+
+      var spotList = spots[y]
+      if (spotList != null) {
+
+        spotList.forEach(spot => {
+          if (spot.from == x) {
+            cell += "<div class='spot spot-begin'></div>"
+          }
+          if (spot.from + spot.length - 1 == x) {
+            cell += "<div class='spot spot-end'></div>"
+          }
+          if (spot.from < x && x < spot.from + spot.length - 1) {
+            cell += "<div class='spot spot-mid'></div>"
+          }
+        })
+  //    console.log(JSON.stringify(spot))
+      }
+
+      cell += "</div>"
+
+      html += cell
+    }
+    html += "</div>\n"  // class row
+  }
+
+  html += "</div>\n\n"  // class sudoku
+
+  return html
+}
+
+
+function getStyles() {
+  var html = `
+<style>
+
+.sudoku:nth-child(odd) {
+  float: right;
+}
+
+.sudoku {
+  display: inline-block;
+  margin-right: 37px;
+  margin-bottom: 68px;
+  page-break-inside: avoid;
+}
+
+.cell {
+  display:inline-block;
+  width:32px;
+  height:32px;
+  border:1px solid black;
+  vertical-align: top;
+  position:relative;
+}
+
+.row {
+  display:block;
+}
+
+.letter {
+  font-family: sans-serif;
+  font-size: 24px;
+  position: relative;
+  left: 6px;
+  top: 2px;
+}
+
+
+.group-left {
+  border-left:2px solid black;
+}
+.group-right {
+  border-right:2px solid black;
+}
+.group-top {
+  border-top:2px solid black;
+}
+.group-bottom {
+  border-bottom:2px solid black;
+}
+
+
+.table-left {
+  border-left:5px solid black;
+}
+.table-right {
+  border-right:5px solid black;
+}
+.table-top {
+  border-top:5px solid black;
+}
+.table-bottom {
+  border-bottom:5px solid black;
+}
+
+.spot {
+  display: block;
+  background-color: #d6d6d6;
+  position: absolute;
+  top: 3px;
+  height: 26px;
+}
+.spot.spot-mid {
+  width: 100%;
+}
+.spot.spot-begin {
+  width: calc(100% - 3px);
+  left:3px;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+.spot.spot-end {
+  width: calc(100% - 3px);
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+</style>`;
+
+  return html
+}
+
+
+
+
 async function main() {
   file = fs.readFileSync("wordlist.txt", 'utf8')
   words = file.split("\n")
@@ -190,15 +339,26 @@ async function main() {
   }
   
   var nine = words.filter(word => goodNine(word))
-  
-  nine.forEach(word => {
+
+
+  var html = "<html><body>" + getStyles()
+
+
+  for(var i=0; i<nine.length; i++) {
+    var word = nine[i]
     var game = createGame(word)
 
     printPuzzle(game.solution, game.map, game.spots)
     printPuzzle(game.puzzle, game.map)
-  
+
+    html += puzzle2HTML(game.puzzle, game.map, game.spots)
+
     console.log("Best score for " + word + " is " + game.score + "\n")
-  })
+  }
+
+  html += "</body></html>"
+  fs.writeFileSync("grid.html", html)
+
 }
 
 
