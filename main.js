@@ -119,35 +119,49 @@ function getMap(numbers, word) {
 
 
 function createGame(word) {
-  var bestPuzzle = null
-  var bestPuzzleScore = 0
-  var bestSolution = null
-  var bestSpots = null
-  var bestMap = null
 
-  for(var i=0; i<200; i++) {
+  for(var i=0; i<20; i++) {
 
-    do {
+    var bestPuzzle = null
+    var bestSolution = null
+    var bestLetterCount = 0
+    for(var j=0; j<16; j++) {
       var puzzle = sudoku.makepuzzle()
       var solution = sudoku.solvepuzzle(puzzle)
-      var difficulty = sudoku.ratepuzzle(puzzle, 4)
-    } while(difficulty > 0)
+      var letterCount = puzzle.reduce((accumulator, currentValue) => accumulator + (currentValue == null ? 0:1))
+//      console.log(JSON.stringify(puzzle))
+      if (letterCount > bestLetterCount) {
+        console.log(j, letterCount)
+        bestLetterCount = letterCount
+        bestPuzzle = puzzle
+        bestSolution = solution
+      }
+    }
 
+    puzzle = bestPuzzle
+    solution = bestSolution
+
+    var best2Puzzle = null
+    var best2PuzzleScore = 0
+    var best2Solution = null
+    var best2Spots = null
+    var best2Map = null
+  
     for(var j=0; j<9; j++) {
       var map = getMap(solution.slice(9*j, 9*(j+1)), word)
       var scoreResult = calculateScore(solution, map)
       var thisScore = scoreResult.score
-      if (thisScore > bestPuzzleScore) {
-        bestPuzzle = puzzle
-        bestSolution = solution
-        bestPuzzleScore = thisScore
-        bestSpots = scoreResult.spots
-        bestMap = map
+      if (thisScore > best2PuzzleScore) {
+        best2Puzzle = puzzle
+        best2Solution = solution
+        best2PuzzleScore = thisScore
+        best2Spots = scoreResult.spots
+        best2Map = map
       }
     }
   }
 
-  return {score:bestPuzzleScore, puzzle:bestPuzzle, map:bestMap, solution:bestSolution, spots:bestSpots}
+  return {score:best2PuzzleScore, puzzle:best2Puzzle, map:best2Map, solution:best2Solution, spots:best2Spots}
 
 }
 
@@ -301,22 +315,23 @@ function getStyles() {
 
 .spot {
   display: block;
-  background-color: #d6d6d6;
+  background-color: #c3c2c2;
   position: absolute;
-  top: 3px;
-  height: 26px;
+  top: 4px;
+  height: 24px;
+  z-index: -1;
 }
 .spot.spot-mid {
   width: 100%;
 }
 .spot.spot-begin {
-  width: calc(100% - 3px);
-  left:3px;
+  width: calc(100% - 4px);
+  left:4px;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
 .spot.spot-end {
-  width: calc(100% - 3px);
+  width: calc(100% - 4px);
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
